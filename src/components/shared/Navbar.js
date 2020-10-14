@@ -22,7 +22,7 @@ export class Navbar extends Component {
                 <Link to='/dashboard' className="nav-link" href="#">Home <span className="sr-only">(current)</span></Link>
               </li>
               <li className="nav-item">
-                <Link to='/explore' className="nav-link" href="#">Add Market</Link>
+                <Link to='/addMarket' className="nav-link" href="#">Add Market</Link>
               </li>
             </ul>
 
