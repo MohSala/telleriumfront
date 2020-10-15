@@ -1,137 +1,195 @@
-import React, { Component } from 'react'
+import React, { Component, createRef } from 'react'
 import { Link, Redirect, withRouter } from 'react-router-dom'
 import loader from "../../assets/loader.svg";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from "react-redux";
-import { createAccount } from "../../actions/auth";
+import { creatMarket } from "../../actions/dashboard";
 import Navbar from "../shared/Navbar"
-import usePlacesAutocomplete, { getGeocode, getLatLng } from "use-places-autocomplete"
-import {
-  GoogleMap,
-  useLoadScript,
-  Marker,
-  InfoWindow
-} from "@react-google-maps/api"
-
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxPopover,
-  ComboboxList,
-  ComboboxOption,
-  ComboboxOptionText,
-} from "@reach/combobox";
-import "@reach/combobox/styles.css";
-
-
+import Dropzone, { useDropzone } from 'react-dropzone'
 toast.configure()
-// notify = (text) => toast.success(text)
+export class AddMarket extends Component {
 
+  state = {
+    name: '',
+    address: '',
+    category: '',
+    description: '',
+    loading: false,
+    empty: false,
+    error: false,
+    showAddImages: false,
+    marketId: "",
+    files: []
+  }
 
+  notify = (text) => toast.success(text)
 
-function AddMarket() {
+  handleChange = (name, e) => {
+    this.setState({
+      [name]: e.target.value,
+      error: false,
+      empty: false
+    });
+  };
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyDBt96ZqDG3Xx1f7g7Hkb6UU7I7rA7bOL4",
-    libraries: ["places"]
-  })
-  if (loadError) return "Error loading maps"
-  if (!isLoaded) return "LOADING"
-
-  return (
-
-    <div>
-      <Navbar name="TLLMKT" />
-      <div style={{ justifyContent: "center", display: "flex" }}>
-        <div>
-          <h1 style={{ fontFamily: 'Montserrat', marginTop: "60px" }}>Add A Market</h1>
-          <div className="form-group col-sm-12" style={{ marginTop: "30px" }}>
-            <label style={{ float: "left" }}>Name</label>
-            <input
-              type="text"
-              className="form-control"
-              name="name"
-              onChange={text => this.change("text", text)}
-              style={{ fontFamily: 'Montserrat' }} />
-          </div>
-
-          <div className="form-group col-sm-12" style={{ marginTop: "30px" }}>
-            <label style={{ float: "left" }}>Description</label>
-            <input
-              type="text"
-              className="form-control"
-              name="description"
-            />
-          </div>
-
-          <div className="form-group col-sm-12">
-            <label style={{ float: "left" }}>Category</label>
-            <select className="custom-select">
-              <option defaultValue="Food">Food</option>
-              <option value="2">Electronics</option>
-              <option value="3">Sports</option>
-            </select>
-          </div>
-
-          <Search />
-
-
-          <div className="form-group col-md-12" style={{ justifyContent: "center" }}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              // disabled={!this.state.email || !this.state.password}
-              style={{ fontSize: "15px" }}>
-              SUBMIT
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-
-  )
-}
-
-function Search() {
-  const { ready, value, suggestions: { status, data }, setValue, clearSuggestions } = usePlacesAutocomplete({
-    requestOptions: {
-      location: {
-        lat: () => 6.5244,
-        lng: () => 3.3792
-      },
-      radius: 200 * 1000,
+  handleSubmit = async () => {
+    this.setState({
+      loading: true,
+      empty: false,
+      error: false
+    })
+    const { name, address, category, description } = this.state;
+    await this.props.creatMarket({ name, description, category, address });
+    if (this.props.created) {
+      this.setState({
+        showAddImages: true,
+        marketId: this.props.data._id
+      })
+      this.notify("Market Created Successfully!")
+    } else {
+      this.setState({
+        error: true,
+        loading: false,
+        errorMsg: "Market cound not be created"
+      })
     }
-  })
+  }
 
-  return (
-    <div className="form-group col-sm-12">
-      <Combobox onSelect={(address) => console.log(address)}>
-        <ComboboxInput value={value} onChange={(e) => {
-          setValue(e.target.value)
-        }}
-          // disabled={!ready}
-          placeholder="Enter an Address"
-        />
-        <ComboboxPopover>
-          {status === "OK" && data.map(({ id, description }) => <ComboboxOption key={id} value={description} />)}
-        </ComboboxPopover>
-      </Combobox>
-    </div>
+  onDrop = (files) => {
+    console.log(files);
+    this.setState({ files })
 
-  )
+  }
+
+
+  render() {
+    const { name, address, category, description, error, errorMsg, showAddImages } = this.state;
+    const files = this.state.files.map(file => (
+      <li key={file.name}>
+        {file.name} - {file.size} bytes
+      </li>
+    ));
+    return (
+      <div>
+        <Navbar name="TLLMKT" />
+        {error &&
+          <div className="alert alert-dismissible alert-danger">
+            <button type="button" className="close" data-dismiss="alert">&times;</button>
+            <strong>{errorMsg}</strong>
+          </div>
+        }
+        <div style={{ justifyContent: "center", display: "flex" }}>
+          <div>
+            <h1 style={{ fontFamily: 'Montserrat', marginTop: "60px" }}>Add A Market</h1>
+            <div className="form-group col-sm-12" style={{ marginTop: "30px" }}>
+              <label style={{ float: "left" }}>Name</label>
+              <input
+                type="text"
+                className="form-control"
+                name="name"
+                onChange={text => this.handleChange("name", text)}
+                style={{ fontFamily: 'Montserrat' }} />
+            </div>
+
+            <div className="form-group col-sm-12" style={{ marginTop: "30px" }}>
+              <label style={{ float: "left" }}>Description</label>
+              <input
+                type="text"
+                className="form-control"
+                name="description"
+                onChange={text => this.handleChange("description", text)}
+              />
+            </div>
+
+            <div className="form-group col-sm-12">
+              <label style={{ float: "left" }}>Category</label>
+              <select className="custom-select"
+                onChange={text => this.handleChange("category", text)}
+              >
+                <option value="">Select Category</option>
+                <option value="Food">Food</option>
+                <option value="electronics">Electronics</option>
+                <option value="sports">Sports</option>
+              </select>
+            </div>
+
+            <div className="form-group col-sm-12">
+              <label style={{ float: "left" }}>Market Address</label>
+              <input
+                type="text"
+                className="form-control"
+                name="description"
+                onChange={text => this.handleChange("address", text)}
+              />
+            </div>
+
+
+
+            <div className="form-group col-md-12" style={{ justifyContent: "center" }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={!name || !category || !description || !address}
+                onClick={this.handleSubmit}
+                style={{ fontSize: "15px" }}>
+                {!this.props.loading ? "CREATE" : <img alt='loading'
+                  src={loader} style={{ width: '23px' }} />}
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ADD IMAGE CONTAINER */}
+        {
+          showAddImages &&
+          <center>
+            <div className="container-fluid" >
+              <h1>ADD IMAGES</h1>
+              <Dropzone onDrop={this.onDrop}>
+                {({ getRootProps, getInputProps }) => (
+                  <section className="container">
+                    <div {...getRootProps({ className: 'dropzone' })}>
+                      <input {...getInputProps()} />
+                      <p>Drag 'n' drop some files here, or click me to select files!</p>
+                    </div>
+                    <aside>
+                      <h4>Files</h4>
+                      <ul>{files}</ul>
+                    </aside>
+                  </section>
+                )}
+              </Dropzone>
+              <div className="form-group col-md-12" style={{ justifyContent: "center" }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={files.length < 1}
+                  onClick={this.handleImageSubmit}
+                  style={{ fontSize: "15px" }}>
+                  {!this.props.loading ? "Submit" : <img alt='loading'
+                    src={loader} style={{ width: '23px' }} />}
+                </button>
+              </div>
+            </div>
+          </center>
+        }
+      </div>
+    )
+  }
 }
 
 const mapDispatchToProps = dispatch => ({
-  createAccount: data => dispatch(createAccount(data))
+  creatMarket: data => dispatch(creatMarket(data))
 });
 
 const mapStateToProps = state => ({
-  loading: state.auth.loading,
-  created: state.auth.created,
-  errorMsg: state.auth.errorMsg
+  loading: state.dash.loading,
+  created: state.dash.created,
+  errorMsg: state.dash.errorMsg,
+  data: state.dash.data
+
 });
 
 export default withRouter(connect(

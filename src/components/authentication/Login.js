@@ -60,7 +60,7 @@ export class Login extends Component {
   };
   render() {
     const token = localStorage.getItem('token');
-    if (token > 0) {
+    if (token) {
       return <Redirect to={"/dashboard"} />;
     }
     return (

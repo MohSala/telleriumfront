@@ -8,7 +8,7 @@ import {
   InfoWindow
 } from "@react-google-maps/api"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-
+import pic from "../../assets/monk.png"
 
 const mapContainerStyle = {
   width: '100vw',
@@ -41,20 +41,9 @@ const locations = [
 
 export default function Dashboard() {
 
-
-  //   if (navigator && navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(pos => {
-  //       const coords = pos.coords;
-  //       this.setState({
-  //         currentLocation: {
-  //           lat: coords.latitude,
-  //           lng: coords.longitude
-  //         }
-  //       });
-  //     });
-  //   }
-  // }
   const [markers, setMarkers] = useState([]);
+  const [lat, setLat] = useState(null)
+  const [lng, setLng] = useState(null)
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   const [selected, setSelected] = useState(null)
@@ -65,6 +54,13 @@ export default function Dashboard() {
   if (loadError) return "Error loading maps"
   if (!isLoaded) return "LOADING"
 
+  if (navigator && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const coords = pos.coords;
+      setLat(coords.latitude)
+      setLng(coords.longitude)
+    });
+  }
 
   return (
     <div>
@@ -85,6 +81,15 @@ export default function Dashboard() {
             }}
           />
         ))}
+
+        <Marker
+          position={lat && lng ? { lat: lat, lng: lng } : null}
+          icon={{
+            url: pic,
+            scaledSize: new window.google.maps.Size(30, 30),
+          }}
+          title="My Location"
+        />
       </GoogleMap>
       <Modal isOpen={modal} toggle={toggle} >
         <ModalHeader toggle={toggle}>Modal title</ModalHeader>
