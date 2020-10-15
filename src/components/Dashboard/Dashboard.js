@@ -37,7 +37,7 @@ const locations = [
     lng: 3.3087
   },
 ]
-
+const libraries = ["places"]
 
 export default function Dashboard() {
 
@@ -47,9 +47,10 @@ export default function Dashboard() {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   const [selected, setSelected] = useState(null)
+
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: "AIzaSyDBt96ZqDG3Xx1f7g7Hkb6UU7I7rA7bOL4",
-    libraries: ["places"]
+    libraries: libraries
   })
   if (loadError) return "Error loading maps"
   if (!isLoaded) return "LOADING"
@@ -73,7 +74,7 @@ export default function Dashboard() {
       >
         {locations.map((marker) => (
           <Marker
-            key={marker.lat.toFixed()}
+            key={marker.lat}
             position={{ lat: marker.lat, lng: marker.lng }}
             onClick={() => {
               setSelected(marker)

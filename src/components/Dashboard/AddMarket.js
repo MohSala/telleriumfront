@@ -4,9 +4,10 @@ import loader from "../../assets/loader.svg";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from "react-redux";
-import { creatMarket } from "../../actions/dashboard";
+import { creatMarket, addImages } from "../../actions/dashboard";
 import Navbar from "../shared/Navbar"
 import Dropzone, { useDropzone } from 'react-dropzone'
+import { Form } from 'reactstrap';
 toast.configure()
 export class AddMarket extends Component {
 
@@ -33,7 +34,8 @@ export class AddMarket extends Component {
     });
   };
 
-  handleSubmit = async () => {
+  handleSubmit = async (e) => {
+    e.preventDefault();
     this.setState({
       loading: true,
       empty: false,
@@ -57,19 +59,42 @@ export class AddMarket extends Component {
   }
 
   onDrop = (files) => {
-    console.log(files);
-    this.setState({ files })
+    console.log("file obj, ", files[0])
+    this.setState({ files: files[0] })
+  }
 
+  handleImageSubmit = async (e) => {
+    e.preventDefault();
+    const { marketId, files } = this.state;
+    await this.props.addImages(marketId, files);
+    if (this.props.added) {
+      this.setState({
+        name: '',
+        address: '',
+        category: '',
+        description: ''
+      })
+      this.notify("Images Added Successfully! Add More Images")
+
+    }
+    else {
+      this.setState({
+        error: true,
+        loading: false,
+        errorMsg: this.props.errorMsg.data.message
+      })
+    }
   }
 
 
   render() {
-    const { name, address, category, description, error, errorMsg, showAddImages } = this.state;
-    const files = this.state.files.map(file => (
-      <li key={file.name}>
-        {file.name} - {file.size} bytes
-      </li>
-    ));
+    const { files, name, address, category, description, error, errorMsg, showAddImages } = this.state;
+
+    // const files = this.state.files.map(file => (
+    //   <li key={file.name}>
+    //     {file.name} - {file.size} bytes
+    //   </li>
+    // ));
     return (
       <div>
         <Navbar name="TLLMKT" />
@@ -152,11 +177,11 @@ export class AddMarket extends Component {
                   <section className="container">
                     <div {...getRootProps({ className: 'dropzone' })}>
                       <input {...getInputProps()} />
-                      <p>Drag 'n' drop some files here, or click me to select files!</p>
+                      <p>Drag 'n' drop some files here, or click me to select files! Add images one at a time!</p>
                     </div>
                     <aside>
                       <h4>Files</h4>
-                      <ul>{files}</ul>
+                      <ul>{files.name}</ul>
                     </aside>
                   </section>
                 )}
@@ -181,13 +206,15 @@ export class AddMarket extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  creatMarket: data => dispatch(creatMarket(data))
+  creatMarket: data => dispatch(creatMarket(data)),
+  addImages: (id, data) => dispatch(addImages(id, data))
 });
 
 const mapStateToProps = state => ({
   loading: state.dash.loading,
   created: state.dash.created,
   errorMsg: state.dash.errorMsg,
+  added: state.dash.added,
   data: state.dash.data
 
 });
