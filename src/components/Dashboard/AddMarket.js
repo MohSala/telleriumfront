@@ -7,7 +7,6 @@ import { connect } from "react-redux";
 import { creatMarket, addImages } from "../../actions/dashboard";
 import Navbar from "../shared/Navbar"
 import Dropzone, { useDropzone } from 'react-dropzone'
-import { Form } from 'reactstrap';
 toast.configure()
 export class AddMarket extends Component {
 

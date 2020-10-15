@@ -2,7 +2,8 @@ import axios from 'axios';
 
 import {
   CREATE_MARKET_ACTION_TYPES,
-  ADD_IMAGES_ACTION_TYPES
+  ADD_IMAGES_ACTION_TYPES,
+  GET_MARKET_ACTION_TYPES
 } from "./actionTypes";
 
 
@@ -17,6 +18,12 @@ const {
   ADD_IMAGES_REJECTED,
   ADD_IMAGES_REQUEST
 } = ADD_IMAGES_ACTION_TYPES
+
+const {
+  GET_MARKET_FULFILLED,
+  GET_MARKET_REJECTED,
+  GET_MARKET_REQUEST
+} = GET_MARKET_ACTION_TYPES
 
 
 const BASE_URL = "http://127.0.0.1:7500";
@@ -37,6 +44,23 @@ const creatMarket = (data) => {
     } catch (e) {
       console.log(e);
       dispatch(creatMarketRejected(e));
+    }
+  };
+};
+
+const getMarket = (data) => {
+  return async (dispatch) => {
+    dispatch(getMarketRequest());
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/v1/market`, {}
+      );
+      const result = response.data.data;
+      console.log('data', result);
+      return dispatch(getMarketFulfilled(result));
+    } catch (e) {
+      console.log(e);
+      dispatch(getMarketRejected(e));
     }
   };
 };
@@ -80,6 +104,20 @@ const creatMarketRejected = (data) => ({
   payload: data
 });
 
+const getMarketRequest = () => ({
+  type: GET_MARKET_REQUEST,
+});
+
+const getMarketFulfilled = data => ({
+  type: GET_MARKET_FULFILLED,
+  payload: data
+});
+
+const getMarketRejected = (data) => ({
+  type: GET_MARKET_REJECTED,
+  payload: data
+});
+
 const addImagesRequest = () => ({
   type: ADD_IMAGES_REQUEST,
 });
@@ -95,4 +133,4 @@ const addImagesRejected = (data) => ({
 });
 
 
-export { creatMarket, addImages }
+export { creatMarket, addImages, getMarket }
