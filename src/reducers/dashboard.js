@@ -1,7 +1,8 @@
 import {
   CREATE_MARKET_ACTION_TYPES,
   ADD_IMAGES_ACTION_TYPES,
-  GET_MARKET_ACTION_TYPES
+  GET_MARKET_ACTION_TYPES,
+  SEARCH_MARKET_ACTION_TYPES
 } from "../actions/actionTypes";
 
 
@@ -23,6 +24,12 @@ const {
   GET_MARKET_REQUEST
 } = GET_MARKET_ACTION_TYPES;
 
+const {
+  SEARCH_MARKET_FULFILLED,
+  SEARCH_MARKET_REJECTED,
+  SEARCH_MARKET_REQUEST
+} = SEARCH_MARKET_ACTION_TYPES
+
 
 const initialState = {
   error: false,
@@ -30,6 +37,8 @@ const initialState = {
   loading: false,
   fetched: false,
   markets: null,
+  retrieved: false,
+  results: null,
   created: false,
   added: false,
   data: null
@@ -78,6 +87,28 @@ const dashReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         fetched: false,
+        errorMsg: action.payload.response
+      }
+
+    case SEARCH_MARKET_REQUEST:
+      return {
+        ...state,
+        loading: true
+      }
+
+    case SEARCH_MARKET_FULFILLED:
+      return {
+        ...state,
+        loading: false,
+        retrieved: true,
+        results: action.payload
+      }
+
+    case SEARCH_MARKET_REJECTED:
+      return {
+        ...state,
+        loading: false,
+        retrieved: false,
         errorMsg: action.payload.response
       }
 

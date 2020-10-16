@@ -88,12 +88,6 @@ export class AddMarket extends Component {
 
   render() {
     const { files, name, address, category, description, error, errorMsg, showAddImages } = this.state;
-
-    // const files = this.state.files.map(file => (
-    //   <li key={file.name}>
-    //     {file.name} - {file.size} bytes
-    //   </li>
-    // ));
     return (
       <div>
         <Navbar name="TLLMKT" />

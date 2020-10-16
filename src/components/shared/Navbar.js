@@ -1,13 +1,28 @@
 import React, { Component } from 'react'
 import { Link } from "react-router-dom"
+import jwt_decode from "jwt-decode";
+
 export class Navbar extends Component {
+  state = {
+    decoded: ""
+  }
   logout = () => {
     localStorage.clear();
     this.props.history.push({
       pathname: '/login',
     })
   }
+
+  componentDidMount = () => {
+    const token = localStorage.getItem('token');
+    const decoded = jwt_decode(token);
+    this.setState({
+      decoded: decoded.role
+    })
+  }
+
   render() {
+    const { decoded } = this.state;
     return (
       <div>
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -21,9 +36,12 @@ export class Navbar extends Component {
               <li className="nav-item">
                 <Link to='/dashboard' className="nav-link" href="#">Home <span className="sr-only">(current)</span></Link>
               </li>
-              <li className="nav-item">
-                <Link to='/addMarket' className="nav-link" href="#">Add Market</Link>
-              </li>
+              {
+                decoded === "admin" &&
+                <li className="nav-item">
+                  <Link to='/addMarket' className="nav-link" href="#">Add Market</Link>
+                </li>
+              }
             </ul>
 
             <form className="form-inline my-2 my-lg-0">
