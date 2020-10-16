@@ -33,7 +33,7 @@ const {
 } = SEARCH_MARKET_ACTION_TYPES
 
 
-const BASE_URL = "http://127.0.0.1:7500";
+const BASE_URL = "http://3.14.11.60:7600";
 
 
 // THUNKS
